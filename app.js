@@ -20,14 +20,14 @@ mongoose.connect(`${process.env.MONGODB_URL}`).then(()=>{
   app.use(cookieParser());
   
   app.use(cors({
-    origin:"*",
+    origin:process.env.FRONT,
     credentials: true
   }));
   app.get('/', (req, res) => {
     res.send('API is working');
   });
   app.use('/api/user', userRoute);
-
-  app.listen(4002,()=>{
-    console.log("listening at 4002")
+ let port=process.env.PORT||4002
+  app.listen(port,()=>{
+    console.log(`server running at ${port}`)
   })
