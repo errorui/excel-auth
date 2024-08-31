@@ -20,6 +20,23 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    projects: [
+      {
+        write: {
+          type: Boolean,
+          required: true
+        },
+        spreadsheet: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Spreadsheet',
+          required: true
+        }
+      }
+    ]
+    // array of  object type :{
+    // spreadhsheetid,
+    // persmission
+    // }
   },
   {
     timestamps: true,
