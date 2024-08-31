@@ -1,6 +1,6 @@
 const User = require('../models/usermodel'); // Adjust the path to your User model
 const Spreadsheet = require('../models/spreadmodel'); // Adjust the path to your Spreadsheet model
-
+const { v4: uuidv4 } = require('uuid'); 
 // Existing function to check if a given spreadsheetId is present in the user's projects array
 const checkSpreadsheetId = async (req, res) => {
   try {
@@ -76,7 +76,8 @@ const updateSpreadsheet = async (req, res) => {
 // Function to create a spreadsheet and add it to users' projects
 const createSpreadsheetAndUpdateUsers = async (req, res) => {
   try {
-    const { spreadsheetId, users,spreadSheetName } = req.body; // Extract spreadsheetId and users array from the request body
+    const spreadsheetId= uuidv4();
+    const { users,spreadSheetName } = req.body; // Extract spreadsheetId and users array from the request body
 
     // Create the spreadsheet document
     const newSpreadsheet = new Spreadsheet({
