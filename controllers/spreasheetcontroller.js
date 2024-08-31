@@ -116,7 +116,8 @@ const createSpreadsheetAndUpdateUsers = async (req, res) => {
 };
 const getSpreadsheetContentByChecking = async (req, res) => {
   try {
-    const { email, spreadsheetId } = req.params;
+    const {  spreadsheetId } = req.params;
+    const {email}=req.body;
 
     // Find the user by email
     const user = await User.findOne({ email });
