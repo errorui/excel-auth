@@ -114,11 +114,38 @@ const createSpreadsheetAndUpdateUsers = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+const getSpreadsheetContentByChecking = async (req, res) => {
+  try {
+    const { email, spreadsheetId } = req.params;
 
+    // Find the user by email
+    const user = await User.findOne({ email });
 
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const spreadsheet = await Spreadsheet.findOne({ spreadsheetId });
+
+    if (!spreadsheet) {
+      return res.status(404).json({ message: 'Spreadsheet not found' });
+    }
+    // Check if the spreadsheetId is present in the user's projects array
+    const isSpreadsheetPresent = user.projects.some(
+      (project) => project.spreadsheetId === spreadsheetId
+    );
+    if(!isSpreadsheetPresent){
+      return res.status(404).json({message:'Spreadsheet access denied'});
+    }
+    return res.status(200).json({ data: spreadsheet.data });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 module.exports = {
   checkSpreadsheetId,
   getSpreadsheetContent,
   updateSpreadsheet,
   createSpreadsheetAndUpdateUsers,
+  getSpreadsheetContentByChecking
 };
