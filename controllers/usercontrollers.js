@@ -1,7 +1,5 @@
-
-let User=require('../models/usermodel')
+const User = require('../models/usermodel');
 const { generateToken } = require('../utils/generatetoken');
-
 
 // Register User
 const registerUser = async (req, res) => {
@@ -63,7 +61,7 @@ const authUser = async (req, res) => {
       res.cookie('token', token, {
         httpOnly: true,
         secure: true,
-        expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // Expires in 2 days
+        expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // Expires in 1 day
         sameSite: 'none',
       });
 
@@ -82,4 +80,15 @@ const authUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, authUser };
+// Get All Users
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find({}, '-password'); // Exclude the password field
+
+    return res.status(200).json(users);
+  } catch (error) {
+    res.status(500).json({ err: 'Internal Server Error' });
+  }
+};
+
+module.exports = { registerUser, authUser, getAllUsers };
