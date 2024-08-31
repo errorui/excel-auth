@@ -6,7 +6,7 @@ const dotenv = require('dotenv').config();
 const mongoose=require('mongoose')
 
 const userRoute = require('./routes/userRoute');
-
+const fileRoute=require('./routes/fileRoute')
 mongoose.connect(`${process.env.MONGODB_URL}`).then(()=>{
     console.log(
     "connected succesffully"
@@ -27,6 +27,7 @@ mongoose.connect(`${process.env.MONGODB_URL}`).then(()=>{
     res.send('API is working');
   });
   app.use('/api/user', userRoute);
+  app.use('/api/file', fileRoute);
  let port=process.env.PORT||4002
   app.listen(port,()=>{
     console.log(`server running at ${port}`)

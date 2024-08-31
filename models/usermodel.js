@@ -26,9 +26,8 @@ const userSchema = mongoose.Schema(
           type: Boolean,
           required: true
         },
-        spreadsheet: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: 'Spreadsheet',
+        spreadsheetId: {
+         type:String,
           required: true
         }
       }
