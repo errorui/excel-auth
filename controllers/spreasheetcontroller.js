@@ -50,8 +50,7 @@ const updateSpreadsheet = async (req, res) => {
   try {
     const { spreadsheetId } = req.params;
     const { data, name } = req.body;
-    console.log(data);
-    console.log(name);
+    
     // Find the spreadsheet by spreadsheetId
     const spreadsheet = await Spreadsheet.findOne({ spreadsheetId });
 
@@ -79,6 +78,7 @@ const createSpreadsheetAndUpdateUsers = async (req, res) => {
   try {
     const spreadsheetId = uuidv4();
     const { users, spreadSheetName } = req.body; 
+    console.log(users)
     // Create the spreadsheet document
     const newSpreadsheet = new Spreadsheet({
       spreadsheetId,

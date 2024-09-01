@@ -83,7 +83,7 @@ const authUser = async (req, res) => {
 // Get All Users
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, '-password'); // Exclude the password field
+    const users = await User.find({}, 'email');  // Exclude the password field
 
     return res.status(200).json(users);
   } catch (error) {
