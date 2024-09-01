@@ -38,7 +38,7 @@ const getSpreadsheetContent = async (req, res) => {
     }
 
     // Return the spreadsheet content
-    return res.status(200).json({ data: spreadsheet.data });
+    return res.status(200).json({ spreadsheet:spreadsheet });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
