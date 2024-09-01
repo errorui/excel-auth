@@ -164,11 +164,47 @@ const deleteSpreadsheet= async(req, res)=>{
  await  user.save();
  return res.status(200).json({message:'Succesfully deleted'});
 }
+const getAccess = async (req, res) => {
+  try {
+    const { spreadsheetId } = req.params;
+    const { email } = req.body;
+
+    // Find the spreadsheet by its ID
+    const spreadsheet = await Spreadsheet.findOne({ spreadsheetId });
+    if (!spreadsheet) {
+      return res.status(404).json({ message: 'Spreadsheet does not exist' });
+    }
+
+    // Find the user by their email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: 'User is not signed up' });
+    }
+
+    // Check if the user has access to the specified spreadsheet
+    const project = user.projects.find(
+      (proj) => proj.spreadsheetId === spreadsheetId
+    );
+
+    if (!project) {
+      return res.status(403).json({ message: 'No access to this spreadsheet' });
+    }
+
+    // Return the write access status
+    return res.status(200).json({
+      message: 'Access granted',
+      writeAccess: project.write,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
 module.exports = {
   checkSpreadsheetId,
   getSpreadsheetContent,
   updateSpreadsheet,
   createSpreadsheetAndUpdateUsers,
   getSpreadsheetContentByChecking,
-  deleteSpreadsheet
+  deleteSpreadsheet,
+  getAccess
 };
