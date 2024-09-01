@@ -50,7 +50,8 @@ const updateSpreadsheet = async (req, res) => {
   try {
     const { spreadsheetId } = req.params;
     const { data, name } = req.body;
-
+    console.log(data);
+    console.log(name);
     // Find the spreadsheet by spreadsheetId
     const spreadsheet = await Spreadsheet.findOne({ spreadsheetId });
 
@@ -109,7 +110,7 @@ const createSpreadsheetAndUpdateUsers = async (req, res) => {
       }
     }
 
-    return res.status(201).json({ message: 'Spreadsheet created and users updated successfully' });
+    return res.status(201).json({ message: 'Spreadsheet created and users updated successfully', spreadsheetId:spreadsheetId });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -144,10 +145,31 @@ const getSpreadsheetContentByChecking = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+const deleteSpreadsheet= async(req, res)=>{
+  const {spreadsheetId}= req.params;
+  const {email}= req.body;
+  const spreadsheet= await Spreadsheet.findOne({spreadsheetId});
+  if(!spreadsheet){
+    return res.status(404).json({message:'Spreadsheet Doest not exist'});
+  }
+  const user= User.findOne({email});
+  const isSpreadsheetPresent = user.projects.some(
+    (project) => project.spreadsheetId === spreadsheetId
+  );
+  if(!isSpreadsheetPresent){
+    return res.status(404).json({message:'Spreadsheet access denied'});
+  }
+  user.projects = user.projects.filter(
+    (project) => project.spreadsheetId !== spreadsheetId
+  );
+ await  user.save();
+ return res.status(200).json({message:'Succesfully deleted'});
+}
 module.exports = {
   checkSpreadsheetId,
   getSpreadsheetContent,
   updateSpreadsheet,
   createSpreadsheetAndUpdateUsers,
-  getSpreadsheetContentByChecking
+  getSpreadsheetContentByChecking,
+  deleteSpreadsheet
 };
