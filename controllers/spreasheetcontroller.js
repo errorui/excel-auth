@@ -73,30 +73,26 @@ const updateSpreadsheet = async (req, res) => {
 };
 
 
-// Function to create a spreadsheet and add it to users' projects
+
 const createSpreadsheetAndUpdateUsers = async (req, res) => {
   try {
-    const spreadsheetId= uuidv4();
-    const { users,spreadSheetName } = req.body; // Extract spreadsheetId and users array from the request body
-
+    const spreadsheetId = uuidv4();
+    const { users, spreadSheetName } = req.body; 
     // Create the spreadsheet document
     const newSpreadsheet = new Spreadsheet({
       spreadsheetId,
-      name: spreadSheetName, // Default name or you can make this configurable
-      data: [] // Initialize with empty data
+      name: spreadSheetName, 
+      data: [] 
     });
 
     await newSpreadsheet.save(); 
 
-   
     for (const user of users) {
       const { email, canWrite } = user; 
 
-      
       const foundUser = await User.findOne({ email });
 
       if (foundUser) {
-        
         foundUser.projects.push({
           write: canWrite,
           spreadsheetId
@@ -104,17 +100,20 @@ const createSpreadsheetAndUpdateUsers = async (req, res) => {
 
         await foundUser.save(); 
       } else {
-       
         console.log(`User with email ${email} not found.`);
       }
     }
 
-    return res.status(201).json({ message: 'Spreadsheet created and users updated successfully' });
+    return res.status(201).json({
+      message: 'Spreadsheet created and users updated successfully',
+      spreadsheetId
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 const getSpreadsheetContentByChecking = async (req, res) => {
   try {
     const {  spreadsheetId } = req.params;
