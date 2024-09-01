@@ -151,7 +151,7 @@ const deleteSpreadsheet= async(req, res)=>{
   if(!spreadsheet){
     return res.status(404).json({message:'Spreadsheet Doest not exist'});
   }
-  const user= User.findOne({email});
+  const user=  await User.findOne({email});
   const isSpreadsheetPresent = user.projects.some(
     (project) => project.spreadsheetId === spreadsheetId
   );
