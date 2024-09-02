@@ -1,6 +1,7 @@
 const User = require('../models/usermodel'); // Adjust the path to your User model
 const Spreadsheet = require('../models/spreadmodel'); // Adjust the path to your Spreadsheet model
 const { v4: uuidv4 } = require('uuid'); 
+
 // Existing function to check if a given spreadsheetId is present in the user's projects array
 const checkSpreadsheetId = async (req, res) => {
   try {
@@ -38,7 +39,7 @@ const getSpreadsheetContent = async (req, res) => {
     }
 
     // Return the spreadsheet content
-    return res.status(200).json({ spreadsheet:spreadsheet });
+    return res.status(200).json({ spreadsheet: spreadsheet });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
@@ -72,13 +73,11 @@ const updateSpreadsheet = async (req, res) => {
   }
 };
 
-
-
 const createSpreadsheetAndUpdateUsers = async (req, res) => {
   try {
     const spreadsheetId = uuidv4();
     const { users, spreadSheetName } = req.body; 
-    console.log(users)
+    
     // Create the spreadsheet document
     const newSpreadsheet = new Spreadsheet({
       spreadsheetId,
@@ -100,8 +99,6 @@ const createSpreadsheetAndUpdateUsers = async (req, res) => {
         });
 
         await foundUser.save(); 
-      } else {
-        console.log(`User with email ${email} not found.`);
       }
     }
 
@@ -117,8 +114,8 @@ const createSpreadsheetAndUpdateUsers = async (req, res) => {
 
 const getSpreadsheetContentByChecking = async (req, res) => {
   try {
-    const {  spreadsheetId } = req.params;
-    const {email}=req.body;
+    const { spreadsheetId } = req.params;
+    const { email } = req.body;
 
     // Find the user by email
     const user = await User.findOne({ email });
@@ -126,44 +123,61 @@ const getSpreadsheetContentByChecking = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
     const spreadsheet = await Spreadsheet.findOne({ spreadsheetId });
 
     if (!spreadsheet) {
       return res.status(404).json({ message: 'Spreadsheet not found' });
     }
+
     // Check if the spreadsheetId is present in the user's projects array
     const isSpreadsheetPresent = user.projects.some(
       (project) => project.spreadsheetId === spreadsheetId
     );
-    if(!isSpreadsheetPresent){
-      return res.status(404).json({message:'Spreadsheet access denied'});
+
+    if (!isSpreadsheetPresent) {
+      return res.status(404).json({ message: 'Spreadsheet access denied' });
     }
+
     return res.status(200).json({ data: spreadsheet.data });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
-const deleteSpreadsheet= async(req, res)=>{
-  const {spreadsheetId}= req.params;
-  const {email}= req.body;
-  const spreadsheet= await Spreadsheet.findOne({spreadsheetId});
-  if(!spreadsheet){
-    return res.status(404).json({message:'Spreadsheet Doest not exist'});
+
+const deleteSpreadsheet = async (req, res) => {
+  try {
+    const { spreadsheetId } = req.params;
+    const { email } = req.body;
+    const spreadsheet = await Spreadsheet.findOne({ spreadsheetId });
+
+    if (!spreadsheet) {
+      return res.status(404).json({ message: 'Spreadsheet does not exist' });
+    }
+
+    const user = await User.findOne({ email });
+
+    const isSpreadsheetPresent = user.projects.some(
+      (project) => project.spreadsheetId === spreadsheetId
+    );
+
+    if (!isSpreadsheetPresent) {
+      return res.status(404).json({ message: 'Spreadsheet access denied' });
+    }
+
+    user.projects = user.projects.filter(
+      (project) => project.spreadsheetId !== spreadsheetId
+    );
+
+    await user.save();
+    return res.status(200).json({ message: 'Successfully deleted' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
-  const user=  await User.findOne({email});
-  const isSpreadsheetPresent = user.projects.some(
-    (project) => project.spreadsheetId === spreadsheetId
-  );
-  if(!isSpreadsheetPresent){
-    return res.status(404).json({message:'Spreadsheet access denied'});
-  }
-  user.projects = user.projects.filter(
-    (project) => project.spreadsheetId !== spreadsheetId
-  );
- await  user.save();
- return res.status(200).json({message:'Succesfully deleted'});
-}
+};
+
 const getAccess = async (req, res) => {
   try {
     const { spreadsheetId } = req.params;
@@ -200,33 +214,33 @@ const getAccess = async (req, res) => {
   }
 };
 
-const getSpreadsheetnames=async (req, res)=>{
-  try{
-    const {email}= req.body;
-    const user= await User.findOne({email});
-    if(!user){
-     return res.status(404).json({message:'User not found'});
+const getSpreadsheetnames = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
     }
+
     const spreadsheetIds = user.projects.map(project => project.spreadsheetId);
-    console.log(spreadsheetIds);
-    let spreadsheetnamesandIds=[];
-    for(const spreadsheetId of spreadsheetIds){
-      const spreadsheet= await Spreadsheet.findOne({spreadsheetId});
-      if(spreadsheet){
-        console.log(spreadsheet);
-        spreadsheetnamesandIds.push({spreadhsheetId:spreadsheetId, spreadsheetName:spreadsheet.name});
-      }
-      else{
-        console.log(`Spreadsheet was not found with id ${spreadsheetId}`);
+    let spreadsheetnamesandIds = [];
+
+    for (const spreadsheetId of spreadsheetIds) {
+      const spreadsheet = await Spreadsheet.findOne({ spreadsheetId });
+
+      if (spreadsheet) {
+        spreadsheetnamesandIds.push({ spreadhsheetId: spreadsheetId, spreadsheetName: spreadsheet.name });
       }
     }
-    return res.status(200).json({spreadsheetnamesandIds});
+
+    return res.status(200).json({ spreadsheetnamesandIds });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Internal Server Error' });
   }
-   catch(err){
-    console.log(err);
-    return res.status(500).json({message:'Internal Server Error'});
-   }
 }
+
 module.exports = {
   checkSpreadsheetId,
   getSpreadsheetContent,
