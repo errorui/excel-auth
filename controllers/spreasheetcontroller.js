@@ -199,6 +199,34 @@ const getAccess = async (req, res) => {
     return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+const getSpreadsheetnames=async (req, res)=>{
+  try{
+    const {email}= req.body;
+    const user= await User.findOne({email});
+    if(!user){
+     return res.status(404).json({message:'User not found'});
+    }
+    const spreadsheetIds = user.projects.map(project => project.spreadsheetId);
+    console.log(spreadsheetIds);
+    let spreadsheetnamesandIds=[];
+    for(const spreadsheetId of spreadsheetIds){
+      const spreadsheet= await Spreadsheet.findOne({spreadsheetId});
+      if(spreadsheet){
+        console.log(spreadsheet);
+        spreadsheetnamesandIds.push({spreadhsheetId:spreadsheetId, spreadsheetName:spreadsheet.name});
+      }
+      else{
+        console.log(`Spreadsheet was not found with id ${spreadsheetId}`);
+      }
+    }
+    return res.status(200).json({spreadsheetnamesandIds});
+  }
+   catch(err){
+    console.log(err);
+    return res.status(500).json({message:'Internal Server Error'});
+   }
+}
 module.exports = {
   checkSpreadsheetId,
   getSpreadsheetContent,
@@ -206,5 +234,6 @@ module.exports = {
   createSpreadsheetAndUpdateUsers,
   getSpreadsheetContentByChecking,
   deleteSpreadsheet,
-  getAccess
+  getAccess,
+  getSpreadsheetnames
 };

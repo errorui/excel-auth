@@ -7,7 +7,8 @@ const {
   createSpreadsheetAndUpdateUsers,
   getSpreadsheetContentByChecking,
   deleteSpreadsheet,
-  getAccess
+  getAccess,
+  getSpreadsheetnames
 } = require('../controllers/spreasheetcontroller');
 // Route to create a spreadsheet and update users' projects--checked
 router.post('/create-spreadsheet', createSpreadsheetAndUpdateUsers);
@@ -26,4 +27,5 @@ router.post('/spreadsheet/:spreadsheetId', updateSpreadsheet); // Need data and 
 router.post('/delete/:spreadsheetId', deleteSpreadsheet);
 
 router.post('/getaccess/:spreadsheetId', getAccess);
+router.post('/getspreadsheetnames', getSpreadsheetnames);
 module.exports = router;
